@@ -2,22 +2,23 @@
 .set _IO_INC, 1
 .file "io.inc"
 
-//fd
-.set STDIN, 0
+//enum fd
+.set STDIN,  0
 .set STDOUT, 1
 .set STDERR, 2
 
-//errors
-.set EOPRTN, -1
-.set EOPRND, -2
-.set EOVFLW, -3
+//enum errors
+.set SUCCES, 0
+.set EINVAL, -1
+.set EOVFLW, -2
+.set EDIVZR, -3
 
 .section .bss
-	.lcomm buff, 1
+	.lcomm buff, 20
 
 .section .rodata.strings
 	startm: 
-		.ascii "\tAsmCalc\n"
+		.ascii "\tAsm-Calc\n"
 		.ascii "Choose the operation: \n"
 		.ascii "0 - Addition\n"
 		.ascii "1 - Substraction\n"
@@ -32,34 +33,34 @@
 
 .section .text
 
-.macro STRLEN str
-	mov x0, \str
-	bl strlen
-.endm 
+.macro GETC buf
+	mov x2, #1
+	adr x1, \buf
+	mov x0, STDIN
+	mov x8, #63
+	svc #0
+.endm
+
+.macro GETI buf len=20
+	adr x0, \buf
+	mov x1, \len
+	bl get_int
+.endm
 
 .macro PRINTS str fd=STDOUT
-	STRLEN \str
+	adr x0, \str
+	bl strlen
 	mov x2, x0
 	adr x1, \str
 	mov x0, \fd
 	mov x8, #64
-	svc 0
+	svc #0
 //write(fd, str, strlen(str))
 .endm
 
 .macro PRINTE err lbl
 	PRINTS \err STDERR
 	b \lbl
-.endm
-
-.macro PRINTC chr
-	str \chr, buff
-	mov x2, #1
-	adr x1, buff
-	mov x0, STDOUT
-	mov x8, #64
-	svc 0
-//write(stdout, buff, 1)
 .endm
 
 .macro PRINTI num
@@ -72,4 +73,4 @@
 	bl print_flt
 .endm
 
-.endif // _IO_INC
+.endif //_IO_INC

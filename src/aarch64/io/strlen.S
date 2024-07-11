@@ -1,16 +1,17 @@
 .file "io/strlen.S"
+.include "common.inc"
 .section .text
 .global strlen
 
-//long strlen(const char *str)
+//unsigned long strlen(char *str)
 //returns length of str
 //without '\0'
-strlen:
-	mov x1, x0
-	strlen_loop:
-		ldrb w9, [x0], #1
-		cbnz w9, strlen_loop
-	sub x0, x0, x1
-	sub x0, x0, #1
-	ret
-
+INIT strlen
+	mov x1, #0
+	0:
+		ldrb w8, [x0, x1]
+		add x1, x1, #1
+		cbnz w8, 0b
+	sub x1, x1, #1
+	mov x0, x1
+FINI

@@ -1,10 +1,11 @@
 AS:=as
+ASFLAGS:=-I src/$(ARCH)
 LD:=ld
 LDFLAGS:=-nostdlib
 
 ARCH:=
 
-SRCS:=$(wildcard src/$(ARCH)/*.S)
+SRCS:=$(wildcard src/$(ARCH)/*.S) $(wildcard src/$(ARCH)/*/*.S)
 OBJS:=$(SRCS:.S=.o)
 EXEC:=calc
 
@@ -22,12 +23,12 @@ x86_64:
 	$(MAKE) ARCH=x86_64 link
 
 link: $(OBJS)
-	$(LD) $^ -o $(EXEC).$(ARCH) $(LDFLAGS)
-	chmod 755 $(EXEC).$(ARCH)
+	$(LD) $^ -o $(EXEC) $(LDFLAGS)
+	chmod 755 $(EXEC)
 	$(MAKE) clean
 
 clean:
-	rm -rf src/*.o
+	find . -name "*.o" -type f -delete
 
 %.o: %.S
-	$(AS) $< -o $@
+	$(AS) $(ASFLAGS) $< -o $@
